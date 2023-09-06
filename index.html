@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+        }
+        .container{
+            margin-left: 45%;
+            margin-top: 20px;
+        }
+        #tableCanvas{
+            margin-left: 30%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    
+    <canvas id="tableCanvas" width="500" height="300"></canvas>
+   <div class="container">
+    <button id="zoomInButton">Zoom In</button>
+    <button id="zoomOutButton">Zoom Out</button>
+   </div>
+    
+    <script>
+        const canvas = document.getElementById('tableCanvas');
+        const ctx = canvas.getContext('2d');
+        let zoomLevel = 1;
+
+        
+        const cellWidth = 100;
+        const cellHeight = 50;
+        const triangleSymbol = '▲';
+        const circleSymbol = '●';
+        const symbols = ['®', '°'];
+        const cornerSymbols = ['RE', '$', '*'];
+
+       
+        function drawCell(x, y, symbol) {
+            ctx.strokeRect(x, y, cellWidth * zoomLevel, cellHeight * zoomLevel);
+            ctx.font = `${Math.min(14, 14 / zoomLevel)}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(symbol, x + (cellWidth * zoomLevel) / 2, y + (cellHeight * zoomLevel) / 2);
+        }
+
+       
+        function redraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const x = col * cellWidth * zoomLevel;
+                    const y = row * cellHeight * zoomLevel;
+
+                    if (col === 0) {
+                        drawCell(x, y, triangleSymbol);
+                    } else if (col === 4) {
+                        drawCell(x, y, circleSymbol);
+                    } else {
+                        const symbol = symbols[(col - 1) % symbols.length];
+                        drawCell(x, y, symbol);
+                    }
+
+                    if (zoomLevel > 1) {
+                        cornerSymbols.forEach((cornerSymbol, i) => {
+                            ctx.font = '12px Arial';
+                            ctx.fillText(cornerSymbol, x + (i % 2 === 0 ? 5 : cellWidth * zoomLevel - 15), y + (i < 2 ? 5 : cellHeight * zoomLevel - 15));
+                        });
+                    }
+                }
+            }
+        }
+
+        
+        document.getElementById('zoomInButton').addEventListener('click', () => {
+            if (zoomLevel < 2) {
+                zoomLevel += 0.1;
+                redraw();
+            }
+        });
+
+        
+        document.getElementById('zoomOutButton').addEventListener('click', () => {
+            if (zoomLevel > 0.5) {
+                zoomLevel -= 0.1;
+                redraw();
+            }
+        });
+
+        
+        redraw();
+    </script>
+</body>
+</html>
